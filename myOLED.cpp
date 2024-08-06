@@ -213,6 +213,38 @@ void MyOLED::OLED_ShowString(u8 x, u8 y, const char *chr, u8 sizey)
       x += sizey / 2;
   }
 }
+
+// 显示一个字符号串
+void MyOLED::OLED_ShowStringLine(uint8_t x, uint8_t y, const char *chr, uint8_t sizey)
+{
+    if(!bIsReady)
+    return;
+
+   uint8_t j = 0;
+      uint8_t maxX = 128;  // Chiều rộng màn hình OLED, thường là 128 pixels
+      uint8_t maxCharsPerLine = (maxX - x) / (sizey == 8 ? 6 : sizey / 2);  // Số ký tự tối đa trên một dòng
+
+      while (chr[j] != '\0') {
+          OLED_ShowChar(x, y, chr[j++], sizey);
+          if (sizey == 8) {
+              x += 6;
+          } else {
+              x += sizey / 2;
+          }
+
+          // Kiểm tra nếu vượt quá giới hạn chiều ngang của màn hình
+          if (x >= maxX) {
+              x = 0;      // Đặt lại vị trí ngang
+              y += sizey / 8;  // Tăng vị trí dọc lên hàng tiếp theo
+          }
+
+          // Kiểm tra nếu vượt quá giới hạn chiều dọc của màn hình (tùy thuộc vào màn hình của bạn)
+          if (y >= 8) {  // Giả sử chiều cao màn hình là 64 pixels (8 hàng, mỗi hàng 8 pixels)
+              break;  // Dừng hiển thị nếu vượt quá chiều cao màn hình
+          }
+      }
+}
+
 // 显示汉字
 void MyOLED::OLED_ShowChinese(u8 x, u8 y, const u8 no, u8 sizey)
 {

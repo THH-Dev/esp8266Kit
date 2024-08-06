@@ -19,7 +19,7 @@ void MyMQTT::mqttPublic(String data)
     return;
   }
   //public
-  mqttClient.publish(MQTT_PUB_TRANSMIT_DATA, 2, true, data.c_str());
+  mqttClient.publish(MQTT_PUB_TRANSMIT_DATA, MQTT_QoS, true, data.c_str());
 
 }
 void MyMQTT::mqttInit()

@@ -27,6 +27,7 @@ public:
 	void OLED_Demo(int iDisplay=10);
 
     void OLED_ColorTurn(u8 i);
+    void OLED_ShowStringLine(uint8_t x, uint8_t y, const char *chr, uint8_t sizey);
     void OLED_DisplayTurn(u8 i);
     void OLED_WR_Byte(u8 dat, u8 mode);
     void OLED_Set_Pos(u8 x, u8 y);

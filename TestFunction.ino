@@ -72,6 +72,7 @@ void toogleLed() {
   bState = !bState;
 }
 int i = 0;
+static unsigned long long count = 0;
 void loop() {
 
   //Trigger from sensor
@@ -89,37 +90,49 @@ void loop() {
   //toogleLed();
   //Serial.println(String("Interrupt" + buttonFlag?"true":"false"));
 
-  
-  myRFID->trigger();
+
+  //Trigger each 300ms
+  if (millis() - count > 1000) {
+    myRFID->trigger();
+    count = millis();
+  }
+
+
+  //Check Queue size and process
   int queueSize = myRFID->queueData.count();
   if (queueSize > 0) {
 
     String epcData = myRFID->queueData.pop();
     if (!epcData.isEmpty()) {
-      String epcData2 = String("@" + String(queueSize) + "$" + epcData);
-      Serial.println(epcData2);
-      myMQTT->mqttPublic(epcData.c_str());
-      
-      myOLED->OLED_Clear();
-      myOLED->OLED_ShowString(8, 2, "RFID Data", 8);
-      myOLED->OLED_ShowString(8, 8, epcData.c_str(), 8);
+      //String epcData2 = String("@" + String(queueSize) + "$" + epcData);
+      //Serial.println(epcData2);
+      myMQTT->mqttPublic(epcData);
+
+      // myOLED->OLED_Clear();
+      // myOLED->OLED_ShowString(0, 0, "RFID Data", 16);
+      // myOLED->OLED_ShowStringLine(0, 2, epcData.c_str(), 16);
 
     } else {
       Serial.println("EPC is empty");
       myOLED->OLED_Clear();
-      myOLED->OLED_ShowString(8, 2, "RFID Data", 8);
-      myOLED->OLED_ShowString(8, 8, "EPC Empty", 8);
+      myOLED->OLED_ShowString(0, 0, "RFID Data", 16);
+      myOLED->OLED_ShowStringLine(0, 2, "EPC Empty", 16);
     }
 
 
   } else {
     //Serial.println("null");
-  }/**/
+    //myMQTT->mqttPublic(String("null " + String(i)));
+
+    // myOLED->OLED_Clear();
+    // myOLED->OLED_ShowString(0, 0, "RFID Data", 8);
+    // myOLED->OLED_ShowStringLine(0, 2, "Queue Empty", 8);
+  } /**/
 
   //myMQTT->mqttPublic(String("Hello " + i).c_str());
   //myMQTT->mqttPublic(String("Hello------------"));
-  // i++;
-  // if(i>=10000)
-  //   i = 0;
-  delay(3000);
+  i++;
+  if (i >= 10000)
+    i = 0;
+  //delay(300);
 }

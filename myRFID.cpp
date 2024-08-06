@@ -34,25 +34,33 @@ void MyRFID::processData(char incomingByte) {
         buffer[bufferIndex] = '\0';  // Null-terminate the buffer
         String rfidData(buffer);
         if (!rfidData.equals("X") && !rfidData.equals("Q")) {
-          
+
           //Push to queue
-          if(rfidData.startsWith("Q30003"))
-          {
-            String dataCopy = rfidData.substring(5, rfidData.length());  // Create a copy to store in the queue
-            Serial.println(String("#"+dataCopy));  // Process the received data (print to Serial Monitor)
+          int data_length = rfidData.length();
+          if (data_length >= 29) {
+            String dataCopy = rfidData.substring(5, 29);  // Create a copy to store in the queue
+            //Serial.println(String("#" + dataCopy));       // Process the received data (print to Serial Monitor)
             queueData.push(dataCopy);
           }
           else
           {
             String dataCopy = rfidData;  // Create a copy to store in the queue
-            Serial.println(String("#"+dataCopy));  // Process the received data (print to Serial Monitor)
+            Serial.println(String("*" + dataCopy));       // Process the received data (print to Serial Monitor)
             queueData.push(dataCopy);
           }
-          
-          
-          
-        } else {
+
+
+
+
+        } else if(rfidData.equals("X")) {
           // TODO: Define care X case
+          queueData.push("Error RFID!");
+          //Serial.println("Error RFID!");
+        }
+        else if(rfidData.equals("Q")) {
+          // TODO: Define care X case
+          queueData.push("Can't read EPC, no tag found!");
+          //Serial.println("Can't read EPC, no tag found!");
         }
         bufferIndex = 0;  // Reset the buffer index for next packet
       }
@@ -83,7 +91,7 @@ void MyRFID::install_uart_interrupt() {
 }
 
 void IRAM_ATTR MyRFID::uart0_rx_intr_handler(void* para) {
-  MyRFID *p = MyRFID::GetInstance();  // Get singleton instance
+  MyRFID* p = MyRFID::GetInstance();  // Get singleton instance
   uint8_t uart_no = UART0;
   uint8_t fifo_len = 0;
   uint32_t uart_intr_status = READ_PERI_REG(UART_INT_ST(uart_no));  //get uart intr status
